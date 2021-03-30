@@ -1,0 +1,127 @@
+﻿@{
+    ViewData["Title"] = "Personas Fisicas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div class="col-md-12">
+    <h1>@ViewData["Title"].ToString()</h1>
+ 
+    <a id="report-excel" class="btn btn-primary btn-sm" href="/PersonasFisicas/Crear"><span class="icon dripicons-download"></span>Agregar</a>
+    
+</div>
+
+<div id="alertPrincipal"></div>
+<div style="padding-top:5px !important">
+    <div id="grid">
+    </div>
+</div>
+
+
+<script>
+       $(document).ready(function () {
+
+
+           $("#grid").kendoGrid({
+               dataSource: {
+                   type: "json",
+                   transport: {
+                       read: {
+                           url: "/api/PersonasFisicas",
+                           dataType: "json",
+                           type: "GET"
+                       }
+                   },
+                   schema: {
+                       model: {
+                           id: "id",
+                           fields: {
+                               fechaNacimiento: { type: "date" },
+                               fechaRegistro: { type: "date" },
+                               fechaActualizacion: { type: "date" },
+                               activo: { type: "boolean" },
+                           }
+                       }
+                   },
+                   pageSize: 20,
+                   serverPaging: false,
+                   serverFiltering: false,
+                   serverSorting: false
+               },
+               // height: 550,
+               toolbar: ["search"],
+               reorderable: true,
+               columnMenu: true,
+               filterable: true,
+               groupable: true,
+               sortable: true,
+               resizable: true,
+               pageable: {
+                   refresh: true,
+                   pageSizes: true,
+                   buttonCount: 5
+               },
+               columns: [
+
+
+                   { field: "nombre", title: "Nombre", width: 120 },
+                   { field: "apellidoPaterno", title: "Apellido paterno", width: 150 },
+                   { field: "apellidoMaterno", title: "Apellido materno", width: 150, },
+                   { field: "rfc", title: "Rfc", width: 180, },
+                   { field: "fechaNacimiento", title: "Fecha Nacimiento", width: 120, format: "{0:dd/MM/yyyy}" },
+                   { field: "usuarioAgrega", title: "Agregado por", width: 120, },
+                   { field: "activo", title: "Activo", width: 100, template: function (e) { return e.activo ? "Activo" : "Inactivo" } },
+                   { field: "fechaRegistro", title: "Fecha registro", width: 120, format: "{0:dd/MM/yyyy}" },
+                   { field: "fechaActualizacion", title: "Fecha actualizacion", width: 120, format: "{0:dd/MM/yyyy}" },
+                   {
+                       title: "Acciones", template:
+                           '<a target="" href="/PersonasFisicas/Editar?id=#:id#" type="button" class="btn btn-outline-warning btn-sm">Editar</a>'
+                           + ' <button #if(!activo) { #disabled # } # onclick="detereRowConfirm(#:id#,\'#:nombre#\')" class= "btn btn-outline-danger btn-sm" >Eliminar</button>',
+                       width: 180,
+                   },
+               ]
+           });
+
+          
+
+       });
+
+    function detereRowConfirm(id, activo) {
+        confirmModal("", "¿Confirma desactivar el registro '" + activo + "'?", "No", "Sí", deleteRow, id);
+    }
+
+    function deleteRow(id) {
+        $.ajax({
+            url: '/api/PersonasFisicas/' + id,
+            type: 'DELETE',
+            dataType: 'json',
+            //data: { id: id },
+            success: function (data, textStatus, xhr) {
+                $("#grid").data("kendoGrid").dataSource.read();
+                //alerta(true, data.message, "alertPrincipal");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                    alerta(false, xhr.responseText, "alertPrincipal");
+            }
+        });  
+  
+
+        
+    }
+
+    function alerta(succes, msj, div) {
+        console.log(msj);
+        var alertDiv = $("#" + div).html("");
+
+        if (succes) {
+            alertDiv.html('<div class="alert alert-success alert-dismissable"> <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><strong>   </strong>' + msj + '</div>');
+        }
+        else
+        {
+            alertDiv.html('<div class="alert alert-danger alert-dismissable"> <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><strong></strong>' + msj + '</div>');
+        }
+    }
+</script>
+

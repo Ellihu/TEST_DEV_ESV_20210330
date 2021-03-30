@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "Clientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+    <div class="col-md-12">
+        <h1>@ViewData["Title"].ToString()</h1>
+
+        @*<a href="/Customers/DescargarReporte" download class="btn btn-primary  ml-auto">Descargar reporte</a>*@
+    <a id="report-excel" class="btn btn-primary btn-sm" href="#"><span class="icon dripicons-download"></span>Descargar reporte</a>
+    </div>
+
+<div id="alertPrincipal"></div>
+<div style="padding-top:5px !important">
+    <div id="grid">
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        $("#grid").kendoGrid({
+            excel: {
+                fileName: "ReporteClientes.xlsx"
+            },
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "/Customers/Listar",
+                        dataType: "json",
+                        type: "GET"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "idCliente",
+                        fields: {
+                            fechaRegistroEmpresa: { type: "date" },
+                            idEmpleado: { type: "numeric" },
+                            idViaje: { type: "numeric" },
+                        }
+                    }
+                },
+                pageSize: 20,
+                serverPaging: false,
+                serverFiltering: false,
+                serverSorting: false
+            },
+            // height: 550,
+            toolbar: ["search"],
+            reorderable: true,
+            columnMenu: true,
+            filterable: true,
+            sortable: true,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+
+
+                { field: "idCliente", title: "Id", width: 120 },
+                { field: "fechaRegistroEmpresa", title: "FechaRegistroEmpresa", width: 120, format: "{0:dd/MM/yyyy}" },
+                { field: "razonSocial", title: "RazonSocial", width: 150, },
+                { field: "rfc", title: "RFC", width: 180, },
+                { field: "sucursal", title: "Sucursal", width: 120, },
+                { field: "idEmpleado", title: "IdEmpleado", width: 120, },
+                { field: "nombre", title: "Nombre", width: 120, },
+                { field: "paterno", title: "Paterno", width: 120, },
+                { field: "materno", title: "Materno", width: 120, },
+                { field: "idViaje", title: "IdViaje", width: 120, },
+
+            ]
+        });
+        $("#report-excel").click(function () {
+            $("#grid").getKendoGrid().saveAsExcel();
+
+        });
+
+
+    });
+
+    
+    function alerta(succes, msj, div) {
+        console.log(msj);
+        var alertDiv = $("#" + div).html("");
+
+        if (succes) {
+            alertDiv.html('<div class="alert alert-success alert-dismissable"> <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><strong>   </strong>' + msj + '</div>');
+        }
+        else
+        {
+            alertDiv.html('<div class="alert alert-danger alert-dismissable"> <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><strong></strong>' + msj + '</div>');
+        }
+    }
+</script>
+

@@ -1,0 +1,143 @@
+﻿@model Entidades.EntityModels.PersonasFisicasEModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Editar persona física</h2>
+<div id="alertPrincipal"></div>
+<hr />
+<form asp-action="Create" id="editForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="row">
+        <div class="col-md-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ApellidoPaterno" class="control-label"></label>
+                <input asp-for="ApellidoPaterno" class="form-control" />
+                <span asp-validation-for="ApellidoPaterno" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ApellidoMaterno" class="control-label"></label>
+                <input asp-for="ApellidoMaterno" class="form-control" />
+                <span asp-validation-for="ApellidoMaterno" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RFC" class="control-label"></label>
+                <input asp-for="RFC" class="form-control" />
+                <span asp-validation-for="RFC" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FechaNacimiento" class="control-label"></label>
+                <input asp-for="FechaNacimiento" class="form-control" />
+                <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group text-center">
+                <br />
+                <button type="submit" id="btnGuardar" data-loading-text="Loading..." class="btn btn-success btn-lg">Guardar</button>
+
+            </div>
+
+        </div>
+    </div>
+</form>
+<div>
+    <br />
+    <a class="linkLeftFixedDiv" id="scroll-up-btn" href="/@ViewContext.RouteData.Values["controller"].ToString()"><i class="fa fa-1x fa-chevron-left"> </i> Regresar</a>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        obtenerPersonaFisica(@Model.Id);
+
+        $("#editForm").submit(function (e) {
+            e.preventDefault();
+
+            var validator =  $(this).validate();
+            if (!validator.form()  || !$("#Id").val()) {
+                return false;
+            }
+
+        //    $("#btnGuardar").button('loading');
+
+            var jsonModel = {
+                Id: parseInt($("#Id").val()),
+                Nombre: $("#Nombre").val(),
+                ApellidoPaterno: $("#ApellidoPaterno").val(),
+                ApellidoMaterno: $("#ApellidoMaterno").val(),
+                RFC: $("#RFC").val(),
+                FechaNacimiento: $("#FechaNacimiento").val(),
+            };
+
+            $.ajax({
+                url: '/api/PersonasFisicas',
+                type: 'PUT',
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(jsonModel),
+                success: function (data, textStatus, xhr) {
+                    cargarPersonafisica(data)
+                    alerta(true, "Datos actualizados", "alertPrincipal");
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alerta(false, xhr.responseText, "alertPrincipal");
+                }
+            });  
+
+        });
+    });
+
+    function obtenerPersonaFisica(id) {
+           $.ajax({
+                url: '/api/PersonasFisicas/'+id,
+                type: 'GET',
+                dataType: 'json',
+               // data: jsonModel,
+                success: function (data, textStatus, xhr) {
+                    cargarPersonafisica(data);
+                    //alerta(true, data.message, "alertPrincipal");
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alerta(false, "Error " + textStatus)
+                }
+            });  
+    }
+
+    function cargarPersonafisica(persona) {
+
+
+        $("#Id").val(persona.id);
+        $("#Nombre").val(persona.nombre);
+        $("#ApellidoPaterno").val(persona.apellidoPaterno);
+        $("#ApellidoMaterno").val(persona.apellidoMaterno);
+        $("#RFC").val(persona.rfc);
+        $("#FechaNacimiento").val(persona.fechaNacimiento);
+
+
+
+    }
+
+    function alerta(succes, msj, div) {
+        var alertDiv = $("#" + div).html("");
+
+        if (succes)
+            alertDiv.html('<div class="alert alert-success alert-dismissable"> <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><strong>   </strong>' + msj + '</div>');
+
+        else
+            alertDiv.html('<div class="alert alert-danger alert-dismissable"> <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><strong></strong>' + msj + '</div>');
+
+    }
+</script>
+
